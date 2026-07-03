@@ -9,6 +9,7 @@ import {
   Users,
   UserRoundPlus,
   X,
+  DatabaseBackup,
 } from "lucide-react";
 import { NavLink } from "react-router-dom";
 
@@ -32,6 +33,7 @@ const managementItems = [
   { label: "Expenses", to: "/expenses", icon: CircleDollarSign },
   { label: "Reports", to: "/reports", icon: BarChart3 },
   { label: "Membership Plans", to: "/plans", icon: CalendarDays },
+  { label: "Backup & Restore", to: "/data-backup", icon: DatabaseBackup },
 ];
 
 function NavigationSection({

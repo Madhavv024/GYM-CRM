@@ -14,6 +14,7 @@ import { SettingsPage } from "@/pages/settings-page";
 import { TrainersPage } from "@/pages/trainers-page";
 import { ReceiptPage } from "@/pages/receipt-page";
 import { AppointmentsPage } from "@/pages/appointments-page";
+import { DataBackupPage } from "@/pages/data-backup-page";
 
 export const router = createBrowserRouter(
   [
@@ -34,6 +35,7 @@ export const router = createBrowserRouter(
         { path: "classes", element: <ClassesPage /> },
         { path: "expenses", element: <ExpensesPage /> },
         { path: "reports", element: <ReportsPage /> },
+        { path: "data-backup", element: <DataBackupPage /> },
         { path: "settings", element: <SettingsPage /> },
       ],
     },
