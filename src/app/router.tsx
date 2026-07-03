@@ -13,23 +13,28 @@ import { ReportsPage } from "@/pages/reports-page";
 import { SettingsPage } from "@/pages/settings-page";
 import { TrainersPage } from "@/pages/trainers-page";
 
-export const router = createBrowserRouter([
+export const router = createBrowserRouter(
+  [
+    {
+      path: "/",
+      element: <AppLayout />,
+      children: [
+        { index: true, element: <DashboardPage /> },
+        { path: "members", element: <MembersPage /> },
+        { path: "members/:memberId", element: <MemberDetailsPage /> },
+        { path: "payments", element: <PaymentsPage /> },
+        { path: "attendance", element: <AttendancePage /> },
+        { path: "leads", element: <LeadsPage /> },
+        { path: "plans", element: <PlansPage /> },
+        { path: "trainers", element: <TrainersPage /> },
+        { path: "classes", element: <ClassesPage /> },
+        { path: "expenses", element: <ExpensesPage /> },
+        { path: "reports", element: <ReportsPage /> },
+        { path: "settings", element: <SettingsPage /> },
+      ],
+    },
+  ],
   {
-    path: "/",
-    element: <AppLayout />,
-    children: [
-      { index: true, element: <DashboardPage /> },
-      { path: "members", element: <MembersPage /> },
-      { path: "members/:memberId", element: <MemberDetailsPage /> },
-      { path: "payments", element: <PaymentsPage /> },
-      { path: "attendance", element: <AttendancePage /> },
-      { path: "leads", element: <LeadsPage /> },
-      { path: "plans", element: <PlansPage /> },
-      { path: "trainers", element: <TrainersPage /> },
-      { path: "classes", element: <ClassesPage /> },
-      { path: "expenses", element: <ExpensesPage /> },
-      { path: "reports", element: <ReportsPage /> },
-      { path: "settings", element: <SettingsPage /> },
-    ],
+    basename: "/crm",
   },
-]);
+);
