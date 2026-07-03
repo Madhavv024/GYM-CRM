@@ -1,13 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "trailingSlash": false,
   "rewrites": [
     {
       "source": "/crm",
       "destination": "/index.html"
     },
     {
-      "source": "/crm/(.*)",
+      "source": "/crm/:path((?!assets/).*)",
       "destination": "/index.html"
     }
   ]
