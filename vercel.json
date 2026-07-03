@@ -2,11 +2,11 @@
   "rewrites": [
     {
       "source": "/crm",
-      "destination": "/crm/"
+      "destination": "/index.html"
     },
     {
       "source": "/crm/(.*)",
-      "destination": "/crm/index.html"
+      "destination": "/index.html"
     }
   ]
 }
