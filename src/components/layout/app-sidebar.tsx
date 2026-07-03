@@ -2,10 +2,10 @@ import {
   BarChart3,
   CalendarDays,
   CircleDollarSign,
-//   ClipboardList,
+  //   ClipboardList,
   LayoutDashboard,
   ReceiptIndianRupee,
-//   Settings,
+  //   Settings,
   Users,
   UserRoundPlus,
   X,
@@ -17,6 +17,7 @@ import { cn } from "@/lib/utils";
 export interface SidebarProps {
   isOpen: boolean;
   onClose: () => void;
+  onNavigate: () => void;
 }
 
 const navigationItems = [
@@ -24,7 +25,7 @@ const navigationItems = [
   { label: "Leads", to: "/leads", icon: UserRoundPlus },
   { label: "Members", to: "/members", icon: Users },
   { label: "Payments", to: "/payments", icon: ReceiptIndianRupee },
-//   { label: "Attendance", to: "/attendance", icon: ClipboardList },
+  { label: "Appointments", to: "/appointments", icon: CalendarDays },
 ];
 
 const managementItems = [
@@ -69,14 +70,18 @@ function NavigationSection({
   );
 }
 
-export function AppSidebar({ isOpen, onClose }: SidebarProps) {
+export function AppSidebar({ isOpen,
+  onClose,
+  onNavigate }: SidebarProps) {
   return (
     <>
       <button
         aria-label="Close navigation menu"
         className={cn(
           "fixed inset-0 z-40 bg-black/60 transition-opacity lg:hidden",
-          isOpen ? "opacity-100" : "pointer-events-none opacity-0",
+          isOpen
+            ? "opacity-100"
+            : "pointer-events-none opacity-0",
         )}
         onClick={onClose}
         type="button"
@@ -84,7 +89,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
 
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-50 flex w-[248px] flex-col bg-[#151515] px-3 py-4 shadow-2xl transition-transform duration-300 lg:static lg:z-auto lg:translate-x-0 lg:shadow-none",
+          "fixed inset-y-0 left-0 z-50 flex h-screen w-[248px] flex-col bg-[#151515] px-3 py-4 shadow-2xl transition-transform duration-300",
           isOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
@@ -93,7 +98,7 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
             <img
               alt="SK Fitness logo"
               className="size-12 rounded-full border border-white/20 bg-white object-cover"
-              src="/sk-fitness-logo.png"
+              src="./sk-fitness-logo.png"
             />
 
             <div>
@@ -117,8 +122,8 @@ export function AppSidebar({ isOpen, onClose }: SidebarProps) {
         </div>
 
         <div className="flex-1 space-y-2 overflow-y-auto px-1">
-          <NavigationSection items={navigationItems} onNavigate={onClose} />
-          <NavigationSection items={managementItems} onNavigate={onClose} />
+          <NavigationSection items={navigationItems} onNavigate={onNavigate} />
+          <NavigationSection items={managementItems} onNavigate={onNavigate} />
         </div>
 
         <div className="mt-5 rounded-xl border border-white/15 px-2 py-2">

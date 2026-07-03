@@ -94,17 +94,13 @@ export function Topbar({ onMenuClick }: TopbarProps) {
         <header className="sticky top-0 z-30 flex h-[78px] items-center justify-between border-b border-border bg-card px-4 shadow-[0_2px_10px_rgb(0_0_0_/_3%)] sm:px-6">
             <div className="flex min-w-0 items-center gap-3">
                 <button
-                    aria-label="Open navigation menu"
-                    className="inline-flex size-10 items-center justify-center rounded-lg text-foreground transition-colors hover:bg-muted lg:hidden"
+                    aria-label="Toggle navigation menu"
+                    className="inline-flex size-10 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground shadow-[0_5px_14px_rgb(217_12_19_/_24%)] transition-transform hover:scale-105 hover:bg-primary/90"
                     onClick={onMenuClick}
                     type="button"
                 >
                     <Menu className="size-5" strokeWidth={2.2} />
                 </button>
-
-                <div className="hidden size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-[0_5px_14px_rgb(217_12_19_/_24%)] sm:flex">
-                    <Menu className="size-4" strokeWidth={2.4} />
-                </div>
 
                 <div className="min-w-0">
                     <h1 className="truncate text-lg font-bold tracking-tight text-foreground sm:text-xl">

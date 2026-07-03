@@ -25,6 +25,33 @@ export type LeadSource =
   | "referral"
   | "phone"
   | "website";
+export type AppointmentStatus =
+  | "scheduled"
+  | "completed"
+  | "cancelled"
+  | "no_show";
+
+export type AppointmentType =
+  | "trial_session"
+  | "trainer_consultation"
+  | "renewal_discussion"
+  | "general";
+
+  export interface Appointment {
+  id: string;
+  title: string;
+  appointmentDate: string;
+  startTime: string;
+  endTime: string;
+  type: AppointmentType;
+  status: AppointmentStatus;
+  memberId?: string;
+  leadId?: string;
+  trainerId?: string;
+  notes?: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
 export type ExpenseCategory =
 | "rent"

@@ -1,4 +1,6 @@
 import type {
+  AppointmentStatus,
+  AppointmentType,
   ExpenseCategory,
   LeadSource,
   LeadStatus,
@@ -56,4 +58,18 @@ export const EXPENSE_CATEGORY_LABELS: Record<ExpenseCategory, string> = {
   marketing: "Marketing",
   maintenance: "Maintenance",
   other: "Other",
+};
+
+export const APPOINTMENT_STATUS_LABELS: Record<AppointmentStatus, string> = {
+  scheduled: "Scheduled",
+  completed: "Completed",
+  cancelled: "Cancelled",
+  no_show: "No show",
+};
+
+export const APPOINTMENT_TYPE_LABELS: Record<AppointmentType, string> = {
+  trial_session: "Trial session",
+  trainer_consultation: "Trainer consultation",
+  renewal_discussion: "Renewal discussion",
+  general: "General appointment",
 };

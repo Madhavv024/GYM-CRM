@@ -7,6 +7,8 @@ import {
   Trash2,
   X,
 } from "lucide-react";
+
+import { Link } from "react-router-dom";
 import { toast } from "sonner";
 import {
   AlertDialog,
@@ -52,9 +54,9 @@ export function PaymentsPage() {
   const [paymentToDelete, setPaymentToDelete] = useState<Payment | undefined>();
 
   const filteredPayments = useMemo(
-  () => filterPayments(payments, members, filters),
-  [filters, members, payments],
-);
+    () => filterPayments(payments, members, filters),
+    [filters, members, payments],
+  );
 
   const totalCollected = useMemo(
     () => getSuccessfulPaymentTotal(payments),
@@ -413,30 +415,43 @@ function PaymentActions({
   onEdit: (payment: Payment) => void;
   onDelete: (payment: Payment) => void;
 }) {
-  return (
-    <div className="flex items-center justify-end gap-1">
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={() => onEdit(payment)}
-        aria-label={`Edit ${payment.receiptNumber}`}
-        title="Edit payment"
-      >
-        <Edit3 className="size-4" />
-      </Button>
-      <Button
-        variant="ghost"
-        size="icon"
-        className="text-danger hover:bg-danger/10 hover:text-danger"
-        onClick={() => onDelete(payment)}
-        aria-label={`Delete ${payment.receiptNumber}`}
-        title="Delete payment"
-      >
-        <Trash2 className="size-4" />
-      </Button>
-    </div>
+  return (<div className="flex items-center justify-end gap-1"> <Link
+    to={`/payments/${payment.id}/receipt`}
+    className="inline-flex size-9 items-center justify-center rounded-md text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+    aria-label={`View receipt ${payment.receiptNumber}`}
+    title="View receipt"
+  >
+    <ReceiptText className="size-4" />
+  </Link>
+
+
+
+    <Button
+      variant="ghost"
+      size="icon"
+      onClick={() => onEdit(payment)}
+      aria-label={`Edit ${payment.receiptNumber}`}
+      title="Edit payment"
+    >
+      <Edit3 className="size-4" />
+    </Button>
+
+    <Button
+      variant="ghost"
+      size="icon"
+      className="text-danger hover:bg-danger/10 hover:text-danger"
+      onClick={() => onDelete(payment)}
+      aria-label={`Delete ${payment.receiptNumber}`}
+      title="Delete payment"
+    >
+      <Trash2 className="size-4" />
+    </Button>
+  </div>
+
+
   );
 }
+
 
 function PaymentStatusBadge({ status }: { status: Payment["status"] }) {
   const variantByStatus: Record<

@@ -1,9 +1,16 @@
 import { useMemo, useState } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { usePaymentsStore } from "@/features/payments/payments.store";
+import {
+    formatPaymentDate,
+    getPaymentMethodLabel,
+    getPaymentStatusLabel,
+} from "@/features/payments/payments.utils";
+import type { Member, Payment } from "@/types";
 import {
     ArrowLeft,
     CalendarDays,
-    Dumbbell,
+    // Dumbbell,
     Edit3,
     Mail,
     MapPin,
@@ -15,6 +22,7 @@ import {
     UserRound,
     UsersRound,
 } from "lucide-react";
+import { RenewMembershipDialog } from "@/components/members/renew-membership-dialog";
 import { toast } from "sonner";
 import {
     AlertDialog,
@@ -39,7 +47,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { PageHeader } from "@/components/layout/page-header";
 import { MemberFormDialog } from "@/features/members/member-form-dialog";
-import { MemberRenewalDialog } from "@/features/members/member-renewal-dialog";
+// import { MemberRenewalDialog } from "@/features/members/member-renewal-dialog";
 import { EmptyState } from "@/components/shared/empty-state";
 import { MembershipStatusBadge } from "@/components/shared/status-badge";
 import { useMembersStore } from "@/features/members/members.store";
@@ -48,13 +56,12 @@ import {
     formatMemberDate,
     getMemberFullName,
     getMemberInitials,
-    getMembershipDaysRemaining,
+    // getMembershipDaysRemaining,
     getMembershipStatus,
 } from "@/features/members/members.utils";
-import { usePlansStore } from "@/features/plans/plans.store";
+// import { usePlansStore } from "@/features/plans/plans.store";
 import { useTrainersStore } from "@/features/trainers/trainers.store";
 import { cn } from "@/lib/utils";
-import type { Member } from "@/types";
 
 export function MemberDetailsPage() {
     const { memberId } = useParams();
@@ -64,8 +71,9 @@ export function MemberDetailsPage() {
     const deleteMember = useMembersStore((state) => state.deleteMember);
     const pauseMembership = useMembersStore((state) => state.pauseMembership);
     const resumeMembership = useMembersStore((state) => state.resumeMembership);
-    const plans = usePlansStore((state) => state.plans);
+    // const plans = usePlansStore((state) => state.plans);
     const trainers = useTrainersStore((state) => state.trainers);
+    const payments = usePaymentsStore((state) => state.payments);
 
     const member = members.find((item) => item.id === memberId);
 
@@ -74,14 +82,26 @@ export function MemberDetailsPage() {
     const [isPauseOpen, setIsPauseOpen] = useState(false);
     const [isDeleteOpen, setIsDeleteOpen] = useState(false);
 
-    const currentPlan = useMemo(
-        () => plans.find((plan) => plan.id === member?.planId),
-        [member?.planId, plans],
-    );
+    // const currentPlan = useMemo(
+    //     () => plans.find((plan) => plan.id === member?.planId),
+    //     [member?.planId, plans],
+    // );
 
     const assignedTrainer = useMemo(
         () => trainers.find((trainer) => trainer.id === member?.assignedTrainerId),
         [member?.assignedTrainerId, trainers],
+    );
+
+    const memberPayments = useMemo(
+        () =>
+            payments
+                .filter((payment) => payment.memberId === member?.id)
+                .sort(
+                    (firstPayment, secondPayment) =>
+                        new Date(secondPayment.paymentDate).getTime() -
+                        new Date(firstPayment.paymentDate).getTime(),
+                ),
+        [member?.id, payments],
     );
 
     if (!member) {
@@ -112,7 +132,7 @@ export function MemberDetailsPage() {
     }
 
     const membershipStatus = getMembershipStatus(member);
-    const daysRemaining = getMembershipDaysRemaining(member.membershipEndDate);
+    // const daysRemaining = getMembershipDaysRemaining(member.membershipEndDate);
 
     function handlePauseMembership(reason: string) {
         if (!member) {
@@ -222,48 +242,41 @@ export function MemberDetailsPage() {
                 <div className="space-y-6">
                     <section className="solid-surface rounded-lg border border-border">
                         <SectionHeader
-                            title="Membership overview"
-                            description="Current plan and membership validity."
-                            icon={<Dumbbell className="size-4" />}
+                            title="Payment history"
+                            description="Recorded collections for this member."
+                            icon={<ReceiptText className="size-4" />}
                         />
 
-                        <div className="grid divide-y divide-border sm:grid-cols-2 sm:divide-x sm:divide-y-0">
-                            <InfoCell label="Current plan" value={currentPlan?.name ?? "Plan unavailable"} />
-                            <InfoCell
-                                label="Membership period"
-                                value={`${formatMemberDate(member.membershipStartDate)} — ${formatMemberDate(member.membershipEndDate)}`}
-                            />
-                            <InfoCell
-                                label="Membership value"
-                                value={currentPlan ? formatCurrency(currentPlan.price + currentPlan.joiningFee) : "—"}
-                            />
-                            <InfoCell
-                                label="Validity"
-                                value={
-                                    member.isPaused
-                                        ? "Membership currently paused"
-                                        : daysRemaining < 0
-                                            ? `Expired ${Math.abs(daysRemaining)} days ago`
-                                            : `${daysRemaining} days remaining`
-                                }
-                                valueClassName={
-                                    member.isPaused || daysRemaining >= 8
-                                        ? undefined
-                                        : "text-warning"
-                                }
-                            />
-                        </div>
-
-                        {member.isPaused ? (
-                            <div className="border-t border-border bg-info/5 px-5 py-4">
-                                <p className="text-sm font-semibold text-foreground">
-                                    Membership paused
-                                </p>
-                                <p className="mt-1 text-sm text-muted-foreground">
-                                    Reason: {member.pauseReason ?? "No reason recorded."}
-                                </p>
+                        {memberPayments.length === 0 ? (
+                            <div className="grid gap-4 p-5 sm:grid-cols-2">
+                                <PlaceholderMetric
+                                    label="Payment activity"
+                                    value="No payments"
+                                    description="No collection records have been added for this member."
+                                />
+                                {/* <PlaceholderMetric
+                                    label="Attendance activity"
+                                    value="Coming next"
+                                    description="Check-ins and visit frequency."
+                                /> */}
                             </div>
-                        ) : null}
+                        ) : (
+                            <>
+                                <div className="divide-y divide-border">
+                                    {memberPayments.map((payment) => (
+                                        <MemberPaymentRow key={payment.id} payment={payment} />
+                                    ))}
+                                </div>
+
+                                <div className="border-t border-border bg-muted/15 p-5">
+                                    {/* <PlaceholderMetric
+                                        label="Attendance activity"
+                                        value="Coming next"
+                                        description="Check-ins and visit frequency."
+                                    /> */}
+                                </div>
+                            </>
+                        )}
                     </section>
 
                     <section className="solid-surface rounded-lg border border-border">
@@ -305,26 +318,28 @@ export function MemberDetailsPage() {
                         </div>
                     </section>
 
-                    <section className="solid-surface rounded-lg border border-border">
-                        <SectionHeader
-                            title="Activity"
-                            description="Payments and attendance will populate here when those modules are connected."
-                            icon={<ReceiptText className="size-4" />}
-                        />
+                    {
+                        //     <section className="solid-surface rounded-lg border border-border">
+                        //     <SectionHeader
+                        //         title="Activity"
+                        //         description="Payments and attendance will populate here when those modules are connected."
+                        //         icon={<ReceiptText className="size-4" />}
+                        //     />
 
-                        <div className="grid gap-4 p-5 sm:grid-cols-2">
-                            <PlaceholderMetric
-                                label="Payment activity"
-                                value="Coming next"
-                                description="Payment ledger and pending dues."
-                            />
-                            <PlaceholderMetric
-                                label="Attendance activity"
-                                value="Coming next"
-                                description="Check-ins and visit frequency."
-                            />
-                        </div>
-                    </section>
+                        //     <div className="grid gap-4 p-5 sm:grid-cols-2">
+                        //         <PlaceholderMetric
+                        //             label="Payment activity"
+                        //             value="Coming next"
+                        //             description="Payment ledger and pending dues."
+                        //         />
+                        //         <PlaceholderMetric
+                        //             label="Attendance activity"
+                        //             value="Coming next"
+                        //             description="Check-ins and visit frequency."
+                        //         />
+                        //     </div>
+                        // </section>
+                    }
                 </div>
 
                 <aside className="space-y-6">
@@ -426,7 +441,7 @@ export function MemberDetailsPage() {
                 member={member}
             />
 
-            <MemberRenewalDialog
+            <RenewMembershipDialog
                 open={isRenewalOpen}
                 onOpenChange={setIsRenewalOpen}
                 member={member}
@@ -567,26 +582,26 @@ function ProfileMeta({
     );
 }
 
-function InfoCell({
-    label,
-    value,
-    valueClassName,
-}: {
-    label: string;
-    value: string;
-    valueClassName?: string;
-}) {
-    return (
-        <div className="p-5">
-            <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
-                {label}
-            </p>
-            <p className={cn("mt-2 font-semibold text-foreground", valueClassName)}>
-                {value}
-            </p>
-        </div>
-    );
-}
+// function InfoCell({
+//     label,
+//     value,
+//     valueClassName,
+// }: {
+//     label: string;
+//     value: string;
+//     valueClassName?: string;
+// }) {
+//     return (
+//         <div className="p-5">
+//             <p className="text-xs font-bold uppercase tracking-[0.12em] text-muted-foreground">
+//                 {label}
+//             </p>
+//             <p className={cn("mt-2 font-semibold text-foreground", valueClassName)}>
+//                 {value}
+//             </p>
+//         </div>
+//     );
+// }
 
 function DetailRow({
     label,
@@ -606,6 +621,37 @@ function DetailRow({
                 {icon ? <span className="mt-1 shrink-0 text-primary">{icon}</span> : null}
                 <span>{value}</span>
             </dd>
+        </div>
+    );
+}
+
+function MemberPaymentRow({ payment }: { payment: Payment }) {
+    return (
+        <div className="flex flex-col gap-4 px-5 py-4 sm:flex-row sm:items-center sm:justify-between">
+            <div className="min-w-0">
+                <div className="flex flex-wrap items-center gap-2">
+                    <p className="font-bold text-foreground">{payment.receiptNumber}</p>
+                    <span className="rounded-md border border-border bg-muted/40 px-2 py-0.5 text-xs font-medium text-muted-foreground">
+                        {getPaymentStatusLabel(payment.status)}
+                    </span>
+                </div>
+                <p className="mt-1 text-sm text-muted-foreground">
+                    {formatPaymentDate(payment.paymentDate)} ·{" "}
+                    {getPaymentMethodLabel(payment.method)}
+                </p>
+            </div>
+
+            <div className="flex items-center justify-between gap-4 sm:justify-end">
+                <p className="font-bold text-foreground">
+                    {formatCurrency(payment.amount)}
+                </p>
+                <Link
+                    to={`/payments/${payment.id}/receipt`}
+                    className="inline-flex h-9 items-center justify-center rounded-md border border-border bg-card px-3 text-sm font-semibold text-foreground transition-colors hover:border-primary/50 hover:bg-primary/5"
+                >
+                    View receipt
+                </Link>
+            </div>
         </div>
     );
 }

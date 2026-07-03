@@ -3,7 +3,7 @@ import {
     ArrowUpRight,
     CalendarDays,
     CircleDollarSign,
-    // CreditCard,
+    Clock3,
     IndianRupee,
     Plus,
     UserRoundCheck,
@@ -34,7 +34,13 @@ import {
 } from "@/features/members/members.utils";
 import { usePaymentsStore } from "@/features/payments/payments.store";
 import { formatPaymentDate } from "@/features/payments/payments.utils";
-import type { Member, Payment } from "@/types";
+import { useAppointmentsStore } from "@/features/appointments/appointments.store";
+import {
+    formatAppointmentTimeRange,
+    getAppointmentStatusLabel,
+    getTodayAppointments,
+} from "@/features/appointments/appointments.utils";
+import type { Member, Payment, Appointment } from "@/types";
 
 const chartGridLines = [0, 25, 50, 75, 100];
 
@@ -42,6 +48,7 @@ export function DashboardPage() {
     const navigate = useNavigate();
     const members = useMembersStore((state) => state.members);
     const payments = usePaymentsStore((state) => state.payments);
+    const appointments = useAppointmentsStore((state) => state.appointments);
     const [revenuePeriod, setRevenuePeriod] = useState<RevenuePeriod>("last_6_months");
 
     type RevenuePeriod = "this_month" | "last_month" | "last_3_months" | "last_6_months";
@@ -128,6 +135,14 @@ export function DashboardPage() {
                 )
                 .slice(0, 4),
         [payments],
+    );
+
+    const todayAppointments = useMemo(
+        () =>
+            getTodayAppointments(appointments)
+                .filter((appointment) => appointment.status === "scheduled")
+                .slice(0, 4),
+        [appointments],
     );
 
     const renewalQueue = useMemo(() => {
@@ -428,7 +443,7 @@ export function DashboardPage() {
                 </div>
             </section>
 
-            <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_300px]">
+            <section className="grid gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(320px,0.9fr)_300px]">
                 <DashboardPanel
                     actionLabel="View Members"
                     actionTo="/members"
@@ -448,6 +463,25 @@ export function DashboardPage() {
                     )}
                 </DashboardPanel>
 
+                <DashboardPanel
+                    actionLabel="View Schedule"
+                    actionTo="/appointments"
+                    description="Scheduled front-desk appointments for today."
+                    title="Today's Appointments"
+                >
+                    {todayAppointments.length === 0 ? (
+                        <p className="py-8 text-center text-sm text-muted-foreground">
+                            No scheduled appointments today.
+                        </p>
+                    ) : (
+                        <div className="max-h-[280px] divide-y divide-border overflow-y-auto pr-2">
+                            {todayAppointments.map((appointment) => (
+                                <TodayAppointmentItem key={appointment.id} appointment={appointment} />
+                            ))}
+                        </div>
+                    )}
+                </DashboardPanel>
+
                 <article className="rounded-xl border border-border bg-card p-5 shadow-[0_3px_14px_rgb(0_0_0_/_4%)]">
                     <h2 className="text-base font-bold text-foreground">Quick Actions</h2>
                     <div className="mt-4 grid grid-cols-2 gap-2">
@@ -455,6 +489,11 @@ export function DashboardPage() {
                             icon={<UserRoundPlus className="size-5" />}
                             label="Add Lead"
                             onClick={() => navigate("/leads")}
+                        />
+                        <QuickAction
+                            icon={<CalendarDays className="size-5" />}
+                            label="Appointments"
+                            onClick={() => navigate("/appointments")}
                         />
                         <QuickAction
                             icon={<Users className="size-5" />}
@@ -577,6 +616,34 @@ function RenewalQueueItem({ member }: { member: Member }) {
                 </p>
             </div>
             <MembershipStatusBadge status={status} />
+        </Link>
+    );
+}
+
+function TodayAppointmentItem({
+    appointment,
+}: {
+    appointment: Appointment;
+}) {
+    return (
+        <Link
+            className="flex items-center justify-between gap-3 py-4 transition-colors hover:bg-muted/50"
+            to="/appointments"
+        >
+            <div className="min-w-0">
+                <p className="truncate text-sm font-semibold text-foreground">
+                    {appointment.title}
+                </p>
+                <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+                    <Clock3 className="size-3.5" />
+                    {formatAppointmentTimeRange(
+                        appointment.startTime,
+                        appointment.endTime,
+                    )}
+                </p>
+            </div>
+
+            <Badge variant="info">{getAppointmentStatusLabel(appointment.status)}</Badge>
         </Link>
     );
 }
